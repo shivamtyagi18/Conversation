@@ -110,3 +110,100 @@ def reset_conversation(session_id: str):
     if session_id in sessions:
         del sessions[session_id]
     return {"status": "ok"}
+
+
+# --- Upload Custom Personality ---
+from fastapi import UploadFile, File, Form
+from pypdf import PdfReader
+import io
+import re
+import ollama as ollama_client
+
+def extract_text_from_file(file: UploadFile) -> str:
+    """Extract text content from PDF or plain text files."""
+    content = file.file.read()
+    
+    if file.filename.lower().endswith('.pdf'):
+        reader = PdfReader(io.BytesIO(content))
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() or ""
+        return text
+    else:
+        # Assume plain text
+        return content.decode('utf-8', errors='ignore')
+
+def generate_persona_from_profile(profile_text: str, custom_name: Optional[str] = None) -> tuple[str, str]:
+    """Use LLM to convert a profile into a persona description."""
+    
+    prompt = f"""Based on the following profile/resume/bio, create a fun and engaging AI personality persona.
+
+PROFILE:
+---
+{profile_text[:4000]}  
+---
+
+Your task:
+1. Extract key traits, expertise, and communication style.
+2. Write a persona description that captures their essence in an entertaining way.
+3. Include 2-3 funny catchphrases they might use.
+
+Output format (ONLY output this, no other text):
+NAME: [A catchy name based on their role, e.g., "The Serial Entrepreneur" or their actual name if clear]
+PERSONA:
+[Your persona description here, 3-5 sentences max]
+CATCHPHRASES: "[phrase1]", "[phrase2]"
+"""
+    
+    response = ollama_client.chat(
+        model='mistral',
+        messages=[{'role': 'user', 'content': prompt}]
+    )
+    
+    result = response['message']['content']
+    
+    # Parse response
+    name_match = re.search(r'NAME:\s*(.+)', result)
+    persona_match = re.search(r'PERSONA:\s*([\s\S]+?)(?:CATCHPHRASES:|$)', result)
+    catchphrase_match = re.search(r'CATCHPHRASES:\s*(.+)', result)
+    
+    name = custom_name or (name_match.group(1).strip() if name_match else "Custom Agent")
+    persona = persona_match.group(1).strip() if persona_match else result
+    catchphrases = catchphrase_match.group(1).strip() if catchphrase_match else ""
+    
+    full_description = f"{persona}\nCatchphrases: {catchphrases}"
+    
+    return name, full_description
+
+@app.post("/api/personalities/upload")
+async def upload_personality(
+    file: UploadFile = File(...),
+    custom_name: Optional[str] = Form(None)
+):
+    global personalities
+    
+    try:
+        # 1. Extract text
+        profile_text = extract_text_from_file(file)
+        
+        if len(profile_text.strip()) < 50:
+            raise HTTPException(status_code=400, detail="Could not extract enough text from file.")
+        
+        # 2. Generate persona using LLM
+        name, description = generate_persona_from_profile(profile_text, custom_name)
+        
+        # 3. Save to file
+        safe_filename = re.sub(r'[^a-z0-9_]', '_', name.lower().strip())[:30]
+        filepath = os.path.join(os.path.dirname(__file__), 'data', 'personalities', f'{safe_filename}.md')
+        
+        with open(filepath, 'w') as f:
+            f.write(f"You are {name}.\n\n{description}")
+        
+        # 4. Reload personalities
+        p_dir = os.path.join(os.path.dirname(__file__), 'data', 'personalities')
+        personalities = load_personalities(p_dir)
+        
+        return {"status": "success", "name": name, "description": description}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

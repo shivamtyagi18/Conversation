@@ -3,3 +3,4 @@ rich
 fastapi
 uvicorn
 python-multipart
+pypdf
