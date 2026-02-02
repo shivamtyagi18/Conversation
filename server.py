@@ -23,15 +23,20 @@ app.add_middleware(
 
 # Store persistent state (Keep it simple for now, in-memory)
 sessions: Dict[str, ConversationManager] = {}
-personalities = []
+base_personalities = []  # Built-in personalities from disk
+custom_personalities = []  # Session-only custom personalities
+
+def get_all_personalities():
+    """Combine base and custom personalities."""
+    return base_personalities + custom_personalities
 
 # Load personalities on startup
 @app.on_event("startup")
 def startup_event():
-    global personalities
+    global base_personalities
     p_dir = os.path.join(os.path.dirname(__file__), 'data', 'personalities')
-    personalities = load_personalities(p_dir)
-    print(f"Loaded {len(personalities)} personalities.")
+    base_personalities = load_personalities(p_dir)
+    print(f"Loaded {len(base_personalities)} built-in personalities.")
 
 # --- Models ---
 class PersonalityModel(BaseModel):
@@ -56,7 +61,8 @@ class SessionResponse(BaseModel):
 
 @app.get("/api/personalities", response_model=List[PersonalityModel])
 def get_personalities():
-    sorted_personalities = sorted(personalities, key=lambda p: p.name.lower())
+    all_personalities = get_all_personalities()
+    sorted_personalities = sorted(all_personalities, key=lambda p: p.name.lower())
     return [
         PersonalityModel(name=p.name, description=p.behavior_description) 
         for p in sorted_personalities
@@ -64,9 +70,10 @@ def get_personalities():
 
 @app.post("/api/conversation/start", response_model=SessionResponse)
 def start_conversation(req: StartRequest):
+    all_personalities = get_all_personalities()
     # Find agents
-    p1 = next((p for p in personalities if p.name == req.agent_a_name), None)
-    p2 = next((p for p in personalities if p.name == req.agent_b_name), None)
+    p1 = next((p for p in all_personalities if p.name == req.agent_a_name), None)
+    p2 = next((p for p in all_personalities if p.name == req.agent_b_name), None)
     
     if not p1 or not p2:
         raise HTTPException(status_code=404, detail="Personality not found")
@@ -168,7 +175,9 @@ CATCHPHRASES: "[phrase1]", "[phrase2]"
     persona_match = re.search(r'PERSONA:\s*([\s\S]+?)(?:CATCHPHRASES:|$)', result)
     catchphrase_match = re.search(r'CATCHPHRASES:\s*(.+)', result)
     
-    name = custom_name or (name_match.group(1).strip() if name_match else "Custom Agent")
+    # Hardcode the name for custom personas
+    name = "Custom Persona"
+    
     persona = persona_match.group(1).strip() if persona_match else result
     catchphrases = catchphrase_match.group(1).strip() if catchphrase_match else ""
     
@@ -181,30 +190,35 @@ async def upload_personality(
     file: UploadFile = File(...),
     custom_name: Optional[str] = Form(None)
 ):
-    global personalities
+    global custom_personalities
     
     try:
         # 1. Extract text
+        print(f"[UPLOAD] Received file: {file.filename}")
         profile_text = extract_text_from_file(file)
+        print(f"[UPLOAD] Extracted text length: {len(profile_text)} chars")
         
         if len(profile_text.strip()) < 50:
             raise HTTPException(status_code=400, detail="Could not extract enough text from file.")
         
         # 2. Generate persona using LLM
+        print(f"[UPLOAD] Generating persona from profile...")
         name, description = generate_persona_from_profile(profile_text, custom_name)
+        print(f"[UPLOAD] Generated persona name: '{name}'")
+        print(f"[UPLOAD] Generated description: {description[:200]}...")
         
-        # 3. Save to file
-        safe_filename = re.sub(r'[^a-z0-9_]', '_', name.lower().strip())[:30]
-        filepath = os.path.join(os.path.dirname(__file__), 'data', 'personalities', f'{safe_filename}.md')
-        
-        with open(filepath, 'w') as f:
-            f.write(f"You are {name}.\n\n{description}")
-        
-        # 4. Reload personalities
-        p_dir = os.path.join(os.path.dirname(__file__), 'data', 'personalities')
-        personalities = load_personalities(p_dir)
+        # 3. Store in memory (session-only, NOT saved to disk)
+        from core.personality_loader import Personality
+        new_personality = Personality(
+            name=name,
+            behavior_description=f"You are {name}.\n\n{description}",
+            filepath=""  # No file path for session-only
+        )
+        custom_personalities.append(new_personality)
+        print(f"[UPLOAD] Added to session. Total custom: {len(custom_personalities)}")
         
         return {"status": "success", "name": name, "description": description}
         
     except Exception as e:
+        print(f"[UPLOAD ERROR] {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

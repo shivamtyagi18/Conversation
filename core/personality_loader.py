@@ -22,13 +22,20 @@ def load_personalities(directory: str) -> List[Personality]:
     for filepath in files:
         basename = os.path.basename(filepath)
         name_raw = os.path.splitext(basename)[0]
-        # Make name pretty: 'software_engineer' -> 'Software Engineer'
+        # Default: Make name pretty from filename: 'software_engineer' -> 'Software Engineer'
         name_pretty = name_raw.replace("_", " ").title()
         
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
                 content = f.read().strip()
                 if content:
+                    # Try to extract name from first line if it matches "You are X."
+                    first_line = content.split('\n')[0]
+                    if first_line.lower().startswith('you are '):
+                        extracted_name = first_line[8:].rstrip('.')  # Remove "You are " and trailing period
+                        if extracted_name:
+                            name_pretty = extracted_name
+                    
                     personalities.append(Personality(
                         name=name_pretty,
                         behavior_description=content,

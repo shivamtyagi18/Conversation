@@ -25,12 +25,12 @@ function App() {
 
   const API_URL = 'http://localhost:8000/api'
 
-  const fetchPersonalities = () => {
+  const fetchPersonalities = (autoSelect = true) => {
     fetch(`${API_URL}/personalities`)
       .then(res => res.json())
       .then(data => {
         setPersonalities(data)
-        if (data.length > 0) {
+        if (autoSelect && data.length > 0) {
           setAgentA(data[0].name)
           setAgentB(data[1] ? data[1].name : data[0].name)
         }
@@ -158,17 +158,21 @@ function App() {
       }
 
       const data = await res.json()
-      setUploadStatus(`Created: ${data.name}`)
+      const newPersonaName = data.name
+      setUploadStatus(`Created: ${newPersonaName}`)
 
-      // Refresh personalities and auto-select the new one
+      // Refresh personalities list
       const newList = await fetch(`${API_URL}/personalities`).then(r => r.json())
       setPersonalities(newList)
 
-      if (forAgent === 'A') {
-        setAgentA(data.name)
-      } else if (forAgent === 'B') {
-        setAgentB(data.name)
-      }
+      // Set the agent selection to the new personality (use setTimeout to ensure state is updated)
+      setTimeout(() => {
+        if (forAgent === 'A') {
+          setAgentA(newPersonaName)
+        } else if (forAgent === 'B') {
+          setAgentB(newPersonaName)
+        }
+      }, 100)
 
       setTimeout(() => setUploadStatus(''), 5000)
     } catch (e) {
@@ -192,7 +196,14 @@ function App() {
 
             <label>Agent A</label>
             <select value={agentA} onChange={e => setAgentA(e.target.value)} disabled={isDiscussionActive}>
-              {personalities.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+              <optgroup label="Built-in Agents">
+                {personalities.filter(p => !p.name.startsWith('Custom:')).map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+              </optgroup>
+              {personalities.some(p => p.name.startsWith('Custom:')) && (
+                <optgroup label="Custom Agents">
+                  {personalities.filter(p => p.name.startsWith('Custom:')).map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+                </optgroup>
+              )}
               <option value="__custom__">➕ Upload Custom...</option>
             </select>
             {agentA === '__custom__' && (
@@ -209,7 +220,14 @@ function App() {
 
             <label>Agent B</label>
             <select value={agentB} onChange={e => setAgentB(e.target.value)} disabled={isDiscussionActive}>
-              {personalities.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+              <optgroup label="Built-in Agents">
+                {personalities.filter(p => !p.name.startsWith('Custom:')).map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+              </optgroup>
+              {personalities.some(p => p.name.startsWith('Custom:')) && (
+                <optgroup label="Custom Agents">
+                  {personalities.filter(p => p.name.startsWith('Custom:')).map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+                </optgroup>
+              )}
               <option value="__custom__">➕ Upload Custom...</option>
             </select>
             {agentB === '__custom__' && (
