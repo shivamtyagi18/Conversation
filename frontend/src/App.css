@@ -176,6 +176,65 @@ button {
   border: 1px solid var(--accent-danger);
 }
 
+/* Mode Selection Buttons */
+.mode-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: stretch;
+  margin-bottom: 15px;
+}
+
+.mode-btn {
+  flex: 1;
+  min-width: 70px;
+  min-height: 55px;
+  padding: 8px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: #a0aec0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.mode-emoji {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.mode-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mode-btn:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  transform: translateY(-1px);
+}
+
+.mode-btn.active {
+  background: linear-gradient(45deg, rgba(101, 78, 163, 0.4), rgba(234, 175, 200, 0.4));
+  border-color: var(--accent-primary);
+  color: white;
+  box-shadow: 0 0 15px rgba(101, 78, 163, 0.3);
+}
+
+.mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Chat Window */
 .chat-window {
   flex: 1;

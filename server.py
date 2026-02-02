@@ -47,6 +47,7 @@ class StartRequest(BaseModel):
     agent_a_name: str
     agent_b_name: str
     topic: str
+    mode: str = "debate"  # debate, discuss, fight, roast
 
 class ConversationTurn(BaseModel):
     speaker: str
@@ -81,8 +82,8 @@ def start_conversation(req: StartRequest):
     # Create session
     session_id = str(uuid.uuid4())
     
-    agent_a = OllamaAgent(name=p1.name, personality_description=p1.behavior_description)
-    agent_b = OllamaAgent(name=p2.name, personality_description=p2.behavior_description)
+    agent_a = OllamaAgent(name=p1.name, personality_description=p1.behavior_description, mode=req.mode)
+    agent_b = OllamaAgent(name=p2.name, personality_description=p2.behavior_description, mode=req.mode)
     
     manager = ConversationManager(agent_a, agent_b, req.topic)
     sessions[session_id] = manager

@@ -3,14 +3,25 @@ from typing import List, Dict
 from .agent_interface import Agent
 
 class OllamaAgent(Agent):
-    def __init__(self, name: str, personality_description: str, model_name: str = "mistral"):
+    MODE_INSTRUCTIONS = {
+        "debate": "INTERACTION STYLE: You are in a formal DEBATE. Be logical, cite points, and politely but firmly disagree where appropriate. Try to win the argument with reasoning.",
+        "discuss": "INTERACTION STYLE: You are having a friendly DISCUSSION. Be collaborative, build on each other's ideas, and explore the topic together.",
+        "fight": "INTERACTION STYLE: You are in a heated FIGHT! Be aggressive, interrupt, get personal, and don't back down. This is a verbal brawl.",
+        "roast": "INTERACTION STYLE: You are in a ROAST! Make fun of the other person and their opinions. Be savage but funny. Aim for laughs, not just insults."
+    }
+    
+    def __init__(self, name: str, personality_description: str, model_name: str = "mistral", mode: str = "debate"):
         super().__init__(name, personality_description)
         self.model_name = model_name
+        self.mode = mode
+        mode_instruction = self.MODE_INSTRUCTIONS.get(mode, self.MODE_INSTRUCTIONS["debate"])
+        
         self.system_prompt = (
             f"You are {name}.\n\n"
             f"PERSONALITY PROFILE:\n{personality_description}\n\n"
+            f"{mode_instruction}\n\n"
             "CRITICAL INSTRUCTIONS:\n"
-            "1. LENGTH LIMIT: Your response MUST be less than 4 sentences. Be punchy and concise. Do NOT write paragraphs.\n"
+            "1. LENGTH LIMIT: Your response MUST be 3 sentences or less. Be punchy and concise. No long paragraphs.\n"
             "2. TONE: Be entertaining, dramatic, witty, and fun to read. Lean heavily into your personality tropes.\n"
             "3. INTERACTION: Respond directly to the last point made. Don't simply agree; add a twist, a joke, or a counter-point."
         )

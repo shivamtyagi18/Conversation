@@ -10,6 +10,7 @@ function App() {
   const [agentA, setAgentA] = useState('')
   const [agentB, setAgentB] = useState('')
   const [topic, setTopic] = useState('')
+  const [mode, setMode] = useState('debate')  // debate, discuss, fight, roast
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -62,7 +63,8 @@ function App() {
         body: JSON.stringify({
           agent_a_name: agentA,
           agent_b_name: agentB,
-          topic: topic
+          topic: topic,
+          mode: mode
         })
       })
 
@@ -250,6 +252,28 @@ function App() {
               disabled={isDiscussionActive}
             />
 
+            <label>Mode</label>
+            <div className="mode-buttons">
+              {['debate', 'discuss', 'fight', 'roast'].map(m => (
+                <button
+                  key={m}
+                  className={`mode-btn ${mode === m ? 'active' : ''}`}
+                  onClick={() => setMode(m)}
+                  disabled={isDiscussionActive}
+                >
+                  <span className="mode-emoji">
+                    {m === 'debate' && '⚖️'}
+                    {m === 'discuss' && '💬'}
+                    {m === 'fight' && '🥊'}
+                    {m === 'roast' && '🔥'}
+                  </span>
+                  <span className="mode-label">
+                    {m.charAt(0).toUpperCase() + m.slice(1)}
+                  </span>
+                </button>
+              ))}
+            </div>
+
             {error && <div className="error">{error}</div>}
 
             {!isDiscussionActive ? (
@@ -258,7 +282,7 @@ function App() {
                 onClick={startConversation}
                 disabled={loading}
               >
-                {loading ? "Initializing..." : "Start Debate"}
+                {loading ? "Initializing..." : "Start Conversation"}
               </button>
             ) : (
               <button
@@ -266,7 +290,7 @@ function App() {
                 onClick={stopConversation}
                 style={{ background: '#ff9f43' }}
               >
-                Stop Debate
+                Stop Conversation
               </button>
             )}
 
