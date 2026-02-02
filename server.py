@@ -56,9 +56,10 @@ class SessionResponse(BaseModel):
 
 @app.get("/api/personalities", response_model=List[PersonalityModel])
 def get_personalities():
+    sorted_personalities = sorted(personalities, key=lambda p: p.name.lower())
     return [
         PersonalityModel(name=p.name, description=p.behavior_description) 
-        for p in personalities
+        for p in sorted_personalities
     ]
 
 @app.post("/api/conversation/start", response_model=SessionResponse)
