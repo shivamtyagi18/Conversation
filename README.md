@@ -1,14 +1,22 @@
-# Duel Agents: AI Conversation Arena
+# 🎭 BANTER - AI Conversation Arena
 
-A fun, interactive application where two AI personalities debate, discuss, or argue about a topic of your choice. Powered by **FastAPI**, **React**, and **Ollama**.
+A fun, interactive application where two AI personalities engage in hilarious debates, discussions, fights, or roasts on any topic. Powered by **FastAPI**, **React**, and **Ollama**.
 
 ## 🚀 Features
-- **10+ Unique Personalities**: From a "Grumpy Sysadmin" to a "Chaos Agent (5-year-old)".
-- **Real-Time Streaming**: Watch the conversation unfold turn-by-turn.
-- **Modern UI**: Dark mode, avatar-based chat interface.
-- **Local Privacy**: Runs 100% locally using Ollama.
+
+- **12 Unique Personalities**: From "Ada (AI Researcher)" to "Blaze (Tech Bro)" to "Chaos Agent (5-year-old)"
+- **4 Conversation Modes**:
+  - ⚖️ **Debate** - Formal arguments with dramatic legal theatrics
+  - 💬 **Discuss** - Friendly but passive-aggressive exchanges
+  - 🥊 **Fight** - Gloves-off verbal sparring
+  - 🔥 **Roast** - Stand-up comedy roast style
+- **Custom Personality Upload**: Upload your own `.pdf`, `.txt`, or `.md` files as custom agents
+- **Real-Time Streaming**: Watch conversations unfold turn-by-turn
+- **Modern Ocean Blue UI**: Sleek dark mode with glassmorphism design
+- **Local & Private**: Runs 100% locally using Ollama
 
 ## 🛠️ Prerequisites
+
 - **Python 3.9+**
 - **Node.js 16+** (for frontend)
 - **Ollama**: [Download here](https://ollama.ai)
@@ -17,15 +25,14 @@ A fun, interactive application where two AI personalities debate, discuss, or ar
 
 ### 1. Clone & Setup Backend
 ```bash
-# Clone repository
-git clone <your-repo-url>
+git clone https://github.com/shivamtyagi18/Conversation.git
 cd Conversation
 
-# It is recommended to create a virtual environment
+# Create virtual environment (recommended)
 python3 -m venv venv
 source venv/bin/activate
 
-# Install Python dependencies
+# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -37,7 +44,6 @@ cd ..
 ```
 
 ### 3. Setup Ollama Model
-Ensure Ollama is installed and running, then pull the model (default is `mistral`):
 ```bash
 ollama serve
 # In a new terminal
@@ -46,35 +52,57 @@ ollama pull mistral
 
 ## 🏃‍♂️ Running the App
 
-You need to run the Backend and Frontend in **separate terminal windows**.
+Run Backend and Frontend in **separate terminal windows**:
 
 **Terminal 1: Backend**
 ```bash
-# From project root
 python3 -m uvicorn server:app --reload --port 8000
 ```
 
 **Terminal 2: Frontend**
 ```bash
-# From project root
 cd frontend
 npm run dev
 ```
 
-Open the link shown in the Frontend terminal (usually **http://localhost:5173**) to start!
+Open **http://localhost:5173** to start!
 
 ## 🎮 How to Use
-1.  **Select Agent A and Agent B** from the dropdowns (e.g., *Product Manager* vs *Software Engineer*).
-2.  **Enter a Topic** (e.g., "Why is Jira so slow?").
-3.  Click **Start Debate**.
-4.  To end the chat, click **Stop / Reset**.
 
-## 🧩 Customization
-Add new personalities by creating `.md` files in `data/personalities/`.
-Format:
+1. **Select Agent A and Agent B** from the dropdowns
+2. **Enter a Topic** (e.g., "Is a hot dog a sandwich?")
+3. **Choose a Mode** (Debate, Discuss, Fight, or Roast)
+4. Click **Start Conversation**
+5. Watch the banter unfold!
+6. Click **Stop Conversation** to end, or **Reset Chat** to start fresh
+
+## 🧩 Adding Custom Personalities
+
+Create `.md` files in `data/personalities/` with this format:
+
 ```markdown
+Character Name (Role)
+
 You are a [Role Name].
 TRAITS: [List traits]
 [Description of behavior]
 Catchphrases: "..."
 ```
+
+## 📁 Project Structure
+
+```
+Conversation/
+├── server.py           # FastAPI backend
+├── core/
+│   └── ollama_client.py  # LLM agent logic
+├── data/personalities/   # Agent personality files
+└── frontend/
+    └── src/
+        ├── App.jsx       # React frontend
+        └── App.css       # Ocean Blue theme
+```
+
+## 📄 License
+
+MIT License
