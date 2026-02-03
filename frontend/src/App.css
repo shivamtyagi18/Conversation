@@ -1,18 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Outfit:wght@300;400;600&display=swap');
 
 :root {
-  --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --text-main: #e0e6ed;
-  --accent-primary: #00f260;
-  /* Neon Green */
-  --accent-secondary: #0575e6;
-  /* Electric Blue */
-  --accent-danger: #ff0055;
-  /* Neon Red */
-  --message-bg-left: rgba(5, 117, 230, 0.2);
-  --message-bg-right: rgba(0, 242, 96, 0.15);
+  --bg-gradient: linear-gradient(135deg, #0a1628, #1a3a5c, #0d2137);
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(100, 180, 220, 0.15);
+  --text-main: #e8f4fc;
+  --accent-primary: #00d4ff;
+  /* Cyan */
+  --accent-secondary: #0099cc;
+  /* Ocean Blue */
+  --accent-danger: #ff6b6b;
+  /* Coral Red */
+  --message-bg-left: rgba(0, 153, 204, 0.2);
+  --message-bg-right: rgba(0, 212, 255, 0.15);
 }
 
 body {
@@ -38,7 +38,7 @@ body {
 header {
   text-align: center;
   margin-bottom: 30px;
-  text-shadow: 0 0 10px rgba(0, 242, 96, 0.5);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
 }
 
 header h1 {
@@ -46,7 +46,7 @@ header h1 {
   font-size: 3rem;
   margin: 0;
   letter-spacing: 2px;
-  background: -webkit-linear-gradient(left, #00f260, #0575e6);
+  background: -webkit-linear-gradient(left, #00d4ff, #0099cc);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -140,14 +140,14 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(45deg, #0575e6, #00f260);
+  background: linear-gradient(45deg, #0099cc, #00d4ff);
   color: white;
-  box-shadow: 0 4px 15px rgba(0, 242, 96, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 242, 96, 0.6);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6);
 }
 
 .btn-primary:disabled {
@@ -157,9 +157,9 @@ button {
 }
 
 .btn-secondary {
-  background: linear-gradient(45deg, #ff0055, #ff00cc);
+  background: linear-gradient(45deg, #ff6b6b, #ffa07a);
   color: white;
-  box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
 }
 
 .btn-secondary:hover {
