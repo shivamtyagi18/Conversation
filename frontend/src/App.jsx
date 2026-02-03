@@ -26,6 +26,22 @@ function App() {
 
   const API_URL = 'http://localhost:8000/api'
 
+  // Sanitize LLM output - remove asterisks, markdown, and stage directions
+  const sanitizeMessage = (text) => {
+    return text
+      // Remove *action* style stage directions
+      .replace(/\*[^*]+\*/g, '')
+      // Remove _italic_ underscores
+      .replace(/_([^_]+)_/g, '$1')
+      // Remove **bold** markers
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      // Remove markdown headers
+      .replace(/^#+\s*/gm, '')
+      // Remove extra whitespace
+      .replace(/\s+/g, ' ')
+      .trim()
+  }
+
   const fetchPersonalities = (autoSelect = true) => {
     fetch(`${API_URL}/personalities`)
       .then(res => res.json())
@@ -187,7 +203,7 @@ function App() {
   return (
     <div className="container">
       <header>
-        <h1>🤖 Dual-Agent Arena 🤖</h1>
+        <h1>🎭 BANTER 🎭</h1>
       </header>
 
       <main>
@@ -317,7 +333,7 @@ function App() {
               <div className="avatar">{msg.speaker[0]}</div>
               <div className="content">
                 <div className="name">{msg.speaker}</div>
-                <div className="text">{msg.message}</div>
+                <div className="text">{sanitizeMessage(msg.message)}</div>
               </div>
             </div>
           ))}
