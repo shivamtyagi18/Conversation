@@ -78,9 +78,11 @@ class OllamaAgent(Agent):
             "• If limits are exceeded, rewrite shorter.\n"
             "• Output ONLY the final compliant text.\n\n"
             "If ANY rule is violated, the response is INVALID."
+            "ANTI-REPETITION RULE:\n"
+            "- Do NOT reuse metaphors, examples, jokes, or punchlines from the previous speaker.\n"
+            "- Do NOT mirror sentence structure or phrasing.\n"
+            "- Introduce at least ONE new angle, example, or analogy per turn.\n"
         )
-
-
 
     def generate_response(self, conversation_history: List[Dict[str, str]]) -> str:
         # Construct the messages list for Ollama
